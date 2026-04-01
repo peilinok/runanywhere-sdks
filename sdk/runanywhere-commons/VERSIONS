@@ -50,7 +50,7 @@ ONNX_VERSION_MACOS=1.23.2
 ONNX_VERSION_LINUX=1.23.2
 
 # Windows version (can use latest)
-ONNX_VERSION_WINDOWS=1.23.2
+ONNX_VERSION_WINDOWS=1.17.1
 
 # =============================================================================
 # Sherpa-ONNX (via runanywhere-core)

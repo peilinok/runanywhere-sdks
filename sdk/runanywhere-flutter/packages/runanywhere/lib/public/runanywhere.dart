@@ -1682,18 +1682,18 @@ class RunAnywhere {
     if (!await dir.exists()) return null;
 
     try {
-      // List folder contents
+      // List folder contents - use entity.path directly (full path, cross-platform)
       final entities = await dir.list().toList();
-      final files =
-          entities.whereType<File>().map((f) => f.path.split('/').last).toList();
+      final files = entities.whereType<File>().toList();
 
       // Find .gguf files that are NOT mmproj files (main model)
-      final ggufFiles = files.where((f) => f.toLowerCase().endsWith('.gguf')).toList();
-      final mainModelFiles =
-          ggufFiles.where((f) => !f.toLowerCase().contains('mmproj')).toList();
+      final mainModelFiles = files.where((f) {
+        final name = f.path.split(RegExp(r'[/\\]')).last.toLowerCase();
+        return name.endsWith('.gguf') && !name.contains('mmproj');
+      }).toList();
 
       if (mainModelFiles.isNotEmpty) {
-        return '$modelFolder/${mainModelFiles.first}';
+        return mainModelFiles.first.path;
       }
 
       return null;
@@ -1710,7 +1710,7 @@ class RunAnywhere {
     try {
       await for (final entity in dir.list()) {
         if (entity is File) {
-          final name = entity.path.split('/').last.toLowerCase();
+          final name = entity.path.split(RegExp(r'[/\\]')).last.toLowerCase();
           if (name.contains('mmproj') && name.endsWith('.gguf')) {
             return entity.path;
           }

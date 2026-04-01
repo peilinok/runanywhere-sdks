@@ -13,6 +13,7 @@ import 'package:runanywhere_ai/core/utilities/constants.dart';
 import 'package:runanywhere_ai/core/utilities/keychain_helper.dart';
 import 'package:runanywhere/public/extensions/rag_module.dart';
 import 'package:runanywhere_llamacpp/runanywhere_llamacpp.dart';
+import 'package:runanywhere_onnx/runanywhere_onnx.dart';
 
 /// RunAnywhereAIApp (mirroring iOS RunAnywhereAIApp.swift)
 ///
@@ -229,6 +230,9 @@ class _RunAnywhereAIAppState extends State<RunAnywhereAIApp> {
     await Future<void>.delayed(Duration.zero);
 
     // --- ONNX MODULE (STT/TTS via Core SDK) ---
+    await Onnx.register();
+    await Future<void>.delayed(Duration.zero);
+
     // STT Models (Sherpa-ONNX Whisper)
     RunAnywhere.registerModel(
       id: 'sherpa-onnx-whisper-tiny.en',

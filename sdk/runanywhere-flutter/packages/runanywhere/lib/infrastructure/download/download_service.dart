@@ -135,6 +135,8 @@ class ModelDownloadService {
       return;
     }
 
+    _logger.info('Download URL: ${model.downloadURL}');
+
     // Emit download started event
     EventBus.shared.publish(SDKModelEvent.downloadStarted(modelId: modelId));
 

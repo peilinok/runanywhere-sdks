@@ -307,11 +307,17 @@ rac_handle_t onnx_tts_create(const rac_service_request_t* request, void* user_da
         return nullptr;
     }
 
-    RAC_LOG_INFO(LOG_CAT, "Creating ONNX TTS service for: %s",
-                 request->identifier ? request->identifier : "(default)");
+    RAC_LOG_INFO(LOG_CAT, "Creating ONNX TTS service for: %s (path: %s)",
+                 request->identifier ? request->identifier : "(default)",
+                 request->model_path ? request->model_path : "(null)");
+
+    // Use model_path (resolved from registry) if available, fall back to identifier
+    const char* load_path = (request->model_path && request->model_path[0] != '\0')
+                                ? request->model_path
+                                : request->identifier;
 
     rac_handle_t backend_handle = nullptr;
-    rac_result_t result = rac_tts_onnx_create(request->identifier, nullptr, &backend_handle);
+    rac_result_t result = rac_tts_onnx_create(load_path, nullptr, &backend_handle);
     if (result != RAC_SUCCESS) {
         RAC_LOG_ERROR(LOG_CAT, "Failed to create ONNX TTS backend: %d", result);
         return nullptr;

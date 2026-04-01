@@ -12,6 +12,17 @@
 #include "rac/core/rac_types.h"
 #include "rac/core/rac_error.h"
 
+/* Export macro for symbols defined in rac_backend_onnx.dll */
+#if defined(_WIN32)
+#  if defined(RAC_ONNX_BUILDING)
+#    define RAC_ONNX_API __declspec(dllexport)
+#  else
+#    define RAC_ONNX_API __declspec(dllimport)
+#  endif
+#else
+#  define RAC_ONNX_API __attribute__((visibility("default")))
+#endif
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -24,14 +35,14 @@ extern "C" {
  *
  * @return RAC_SUCCESS or error code
  */
-RAC_API rac_result_t rac_backend_onnx_embeddings_register(void);
+RAC_ONNX_API rac_result_t rac_backend_onnx_embeddings_register(void);
 
 /**
  * @brief Unregister the ONNX embeddings backend
  *
  * @return RAC_SUCCESS or error code
  */
-RAC_API rac_result_t rac_backend_onnx_embeddings_unregister(void);
+RAC_ONNX_API rac_result_t rac_backend_onnx_embeddings_unregister(void);
 
 #ifdef __cplusplus
 }

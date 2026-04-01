@@ -826,7 +826,12 @@ int _listDirectoryCallback(
       return RacResultCode.success;
     }
 
-    final entries = dir.listSync().map((e) => e.path.split('/').last).toList();
+    final entries = dir.listSync().map((e) {
+      final p = e.path;
+      // Handle both Unix '/' and Windows '\' separators
+      final lastSlash = p.lastIndexOf(RegExp(r'[/\\]'));
+      return lastSlash >= 0 ? p.substring(lastSlash + 1) : p;
+    }).toList();
     outCount.value = entries.length;
 
     if (entries.isEmpty) return RacResultCode.success;

@@ -318,24 +318,15 @@ class DartBridge {
 
   /// Configure C++ logging based on environment
   static void _configureLogging(SDKEnvironment environment) {
-    int logLevel;
-    switch (environment) {
-      case SDKEnvironment.development:
-        logLevel = RacLogLevel.debug;
-        break;
-      case SDKEnvironment.staging:
-        logLevel = RacLogLevel.info;
-        break;
-      case SDKEnvironment.production:
-        logLevel = RacLogLevel.warning;
-        break;
-    }
+    // rac_configure_logging expects rac_environment_t (0=dev, 1=staging, 2=prod)
+    // NOT a log level - pass the environment integer directly
+    final envInt = _environmentToInt(environment);
 
     try {
       final configureLogging =
           lib.lookupFunction<Void Function(Int32), void Function(int)>(
               'rac_configure_logging');
-      configureLogging(logLevel);
+      configureLogging(envInt);
     } catch (e) {
       _logger.warning('Failed to configure C++ logging: $e');
     }

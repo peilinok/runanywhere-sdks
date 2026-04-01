@@ -807,12 +807,41 @@ bool ONNXTTS::load_model(const std::string& model_path, TTSModelType model_type,
     }
 
     if (fs::is_directory(model_path, ec)) {
-        model_onnx_path = (fs::path(model_path) / "model.onnx").string();
-        tokens_path = (fs::path(model_path) / "tokens.txt").string();
-        lexicon_path = (fs::path(model_path) / "lexicon.txt").string();
+        // If the directory has no .onnx files but has exactly one subdirectory,
+        // descend into it (handles tar.gz archives that extract with an extra wrapper dir)
+        std::string effective_model_path = model_path;
+        {
+            bool has_onnx = false;
+            std::string only_subdir;
+            int subdir_count = 0;
+            for (const auto& entry : fs::directory_iterator(model_path, ec)) {
+                if (ec) { ec.clear(); continue; }
+                if (entry.path().extension() == ".onnx") { has_onnx = true; break; }
+                if (fs::is_directory(entry.path(), ec)) {
+                    only_subdir = entry.path().string();
+                    subdir_count++;
+                }
+            }
+            if (!has_onnx && subdir_count == 1) {
+                // Check the subdir actually has .onnx files
+                for (const auto& entry : fs::directory_iterator(only_subdir, ec)) {
+                    if (ec) { ec.clear(); continue; }
+                    if (entry.path().extension() == ".onnx") {
+                        RAC_LOG_INFO("ONNX.TTS", "Descending into nested model dir: %s", only_subdir.c_str());
+                        effective_model_path = only_subdir;
+                        model_dir_ = only_subdir;
+                        break;
+                    }
+                }
+            }
+        }
+
+        model_onnx_path = (fs::path(effective_model_path) / "model.onnx").string();
+        tokens_path = (fs::path(effective_model_path) / "tokens.txt").string();
+        lexicon_path = (fs::path(effective_model_path) / "lexicon.txt").string();
 
         if (!fs::exists(model_onnx_path, ec)) {
-            for (const auto& entry : fs::directory_iterator(model_path, ec)) {
+            for (const auto& entry : fs::directory_iterator(effective_model_path, ec)) {
                 if (ec) { ec.clear(); continue; }
                 if (entry.path().extension() == ".onnx") {
                     model_onnx_path = entry.path().string();
@@ -823,18 +852,18 @@ bool ONNXTTS::load_model(const std::string& model_path, TTSModelType model_type,
         }
 
         // Look for espeak-ng-data directory
-        fs::path candidate = fs::path(model_path) / "espeak-ng-data";
+        fs::path candidate = fs::path(effective_model_path) / "espeak-ng-data";
         if (fs::is_directory(candidate, ec)) {
             espeak_data_dir = candidate.string();
         } else {
-            candidate = fs::path(model_path) / "data" / "espeak-ng-data";
+            candidate = fs::path(effective_model_path) / "data" / "espeak-ng-data";
             if (fs::is_directory(candidate, ec)) {
                 espeak_data_dir = candidate.string();
             }
         }
 
         if (!fs::exists(lexicon_path, ec)) {
-            fs::path alt_lexicon = fs::path(model_path) / "lexicon";
+            fs::path alt_lexicon = fs::path(effective_model_path) / "lexicon";
             if (fs::exists(alt_lexicon, ec)) {
                 lexicon_path = alt_lexicon.string();
             }

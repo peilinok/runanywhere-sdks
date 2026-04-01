@@ -121,7 +121,13 @@ class Onnx implements RunAnywhereModule {
 
     // Check native library availability
     if (!isAvailable) {
-      _logger.error('ONNX native library not available');
+      _logger.error('ONNX native library not available on this platform');
+      // Try to give more detail about why
+      try {
+        OnnxBindings.loadBackendLibrary();
+      } catch (e) {
+        _logger.error('loadBackendLibrary failed: $e');
+      }
       return;
     }
 

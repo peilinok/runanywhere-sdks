@@ -52,6 +52,7 @@ class OnnxBindings {
   ///
   /// On iOS/macOS: Uses DynamicLibrary.process() for statically linked XCFramework
   /// On Android: Loads librac_backend_onnx_jni.so or librunanywhere_onnx.so
+  /// On Windows/Linux: Loads rac_backend_onnx.dll/.so explicitly
   ///
   /// This is exposed as a static method so it can be used by [Onnx.isAvailable].
   static DynamicLibrary loadBackendLibrary() {
@@ -83,6 +84,16 @@ class OnnxBindings {
         'Could not load ONNX backend library on Android. '
         'Tried: ${libraryNames.join(", ")}',
       );
+    }
+
+    if (Platform.isWindows || Platform.isLinux) {
+      // On Windows/Linux, load rac_commons first (dependency), then the backend DLL.
+      try {
+        PlatformLoader.loadCommons();
+      } catch (_) {
+        // Ignore - rac_commons may already be loaded
+      }
+      return PlatformLoader.loadLibrary('rac_backend_onnx');
     }
 
     // On iOS/macOS, everything is statically linked

@@ -84,6 +84,12 @@
 @import runanywhere_llamacpp;
 #endif
 
+#if __has_include(<runanywhere_onnx/OnnxPlugin.h>)
+#import <runanywhere_onnx/OnnxPlugin.h>
+#else
+@import runanywhere_onnx;
+#endif
+
 #if __has_include(<shared_preferences_foundation/SharedPreferencesPlugin.h>)
 #import <shared_preferences_foundation/SharedPreferencesPlugin.h>
 #else
@@ -118,6 +124,7 @@
   [RecordPlugin registerWithRegistrar:[registry registrarForPlugin:@"RecordPlugin"]];
   [RunAnywherePlugin registerWithRegistrar:[registry registrarForPlugin:@"RunAnywherePlugin"]];
   [LlamaCppPlugin registerWithRegistrar:[registry registrarForPlugin:@"LlamaCppPlugin"]];
+  [OnnxPlugin registerWithRegistrar:[registry registrarForPlugin:@"OnnxPlugin"]];
   [SharedPreferencesPlugin registerWithRegistrar:[registry registrarForPlugin:@"SharedPreferencesPlugin"]];
   [SqflitePlugin registerWithRegistrar:[registry registrarForPlugin:@"SqflitePlugin"]];
   [URLLauncherPlugin registerWithRegistrar:[registry registrarForPlugin:@"URLLauncherPlugin"]];

@@ -280,6 +280,9 @@ rac_handle_t onnx_embeddings_create_service(const rac_service_request_t* request
 
 extern "C" {
 
+#if defined(_WIN32) && defined(RAC_ONNX_BUILDING)
+__declspec(dllexport)
+#endif
 rac_result_t rac_backend_onnx_embeddings_register(void) {
     auto& state = get_onnx_embed_state();
     std::lock_guard<std::mutex> lock(state.mutex);

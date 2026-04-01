@@ -86,6 +86,11 @@ public final class GeneratedPluginRegistrant {
       Log.e(TAG, "Error registering plugin runanywhere_llamacpp, ai.runanywhere.sdk.llamacpp.LlamaCppPlugin", e);
     }
     try {
+      flutterEngine.getPlugins().add(new ai.runanywhere.sdk.onnx.OnnxPlugin());
+    } catch (Exception e) {
+      Log.e(TAG, "Error registering plugin runanywhere_onnx, ai.runanywhere.sdk.onnx.OnnxPlugin", e);
+    }
+    try {
       flutterEngine.getPlugins().add(new io.flutter.plugins.sharedpreferences.SharedPreferencesPlugin());
     } catch (Exception e) {
       Log.e(TAG, "Error registering plugin shared_preferences_android, io.flutter.plugins.sharedpreferences.SharedPreferencesPlugin", e);

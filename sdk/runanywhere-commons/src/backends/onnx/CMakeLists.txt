@@ -240,6 +240,14 @@ endif()
 # Define RAC_HAS_ONNX to enable ONNX Runtime code paths
 target_compile_definitions(rac_backend_onnx PRIVATE RAC_ONNX_BUILDING RAC_HAS_ONNX)
 
+# On Windows, pin ORT_API_VERSION to match the bundled onnxruntime.dll (1.17.1 = API 17).
+# onnxruntime_cxx_api.h has a static initializer that calls GetApi(ORT_API_VERSION) at
+# DLL load time; if compiled with a newer header (API 23) but running against 1.17.1 DLL,
+# ORT prints a warning. Pinning here ensures the C++ wrapper requests the correct version.
+if(RAC_PLATFORM_WINDOWS)
+    target_compile_definitions(rac_backend_onnx PRIVATE ORT_API_VERSION=17)
+endif()
+
 target_link_libraries(rac_backend_onnx PUBLIC
     rac_commons
     onnxruntime
